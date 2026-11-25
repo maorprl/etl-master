@@ -48,17 +48,18 @@ Living documentation of data extraction methods and their practical application 
 
 ### Observed result
 
-The Power Query screenshot shows a top-level List containing Record values. Each record is expected to represent a company, based on the source purpose; its fields have not yet been inspected.
+The Power Query screenshot shows a top-level List containing Record values. Each record is expected to represent a company, based on the source purpose; its fields were subsequently inspected and expanded (see STRUCTURE.md).
 
 ### Extraction validation
 
 - [x] Query returned a parsed JSON preview with no visible error.
 - [x] Top-level structure observed: List of Records.
-- [ ] Verify full record count and completeness.
+- [x] Observe 6,408 company rows in subsequent full-data profiling.
+- [ ] Independently verify source completeness and raw-to-expanded row-count parity.
 - [ ] Verify refresh behavior.
 
-No table conversion, record expansion, cleaning or loading has been verified yet.
+Table conversion and record expansion were subsequently observed; see STRUCTURE.md. Final loading and repeat refresh remain unverified.
 
 ### Next step
 
-Inspect the JSON structure and begin Data Structuring. Avoid expanding nested lists before establishing the intended grain.
+Data Structuring has begun; see [STRUCTURE.md](STRUCTURE.md) and [DATA_QUALITY.md](DATA_QUALITY.md) for current status.
