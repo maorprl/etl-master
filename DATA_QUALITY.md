@@ -67,11 +67,11 @@ User acknowledged the final checklist; no workbook or complete final QC output w
 
 Create references in Quality Control; do not modify the data tables when diagnosing problems.
 
-| QC query | Source | Method | Expected result | Latest user-reported status |
+| QC query | Source | Method | Expected result | Latest status (four saved outputs verified below) |
 | --- | --- | --- | --- | --- |
 | Industry_PK_Duplicates | YC_Industry_Hierarchy | Keep industry_id, Group By industry_id, Count Rows, Count > 1 | 0 rows | Empty / PASS |
 | Industry_Parent_Orphans | YC_Industry_Hierarchy | Filter parent_id != null; Left Anti Merge parent_id against YC_Industry_Hierarchy.industry_id | 0 rows | Empty / PASS |
-| Company_Industry_Duplicates | YC_Company_Industry | Group By company_id + industry_id, Count Rows, Count > 1 | 0 rows | Created per user; empty output not explicitly confirmed |
+| Company_Industry_Duplicates | YC_Company_Industry | Group By company_id + industry_id, Count Rows, Count > 1 | 0 rows | Empty / PASS (saved worksheet verified) |
 | Companies_Without_Industry | YC_Companies | Keep Column1.id; Left Anti Merge vs YC_Company_Industry.company_id | 0 rows for this snapshot | Empty / PASS |
 
 The dictionary PK must be checked against the dictionary, not against staging where repeated node IDs are expected. Distinct/Unique statistics after grouping do not demonstrate uniqueness of the original table. Root parent_id nulls are legitimate; exclude them before the parent anti-join. Coverage checks show absence of missing company assignments, not absence of incorrect or extra assignments. A company without classification at source may legitimately be missing from the bridge; investigate before treating this as a failure.
@@ -82,15 +82,28 @@ Additional checks: whole-data Column Quality; no null/error IDs, text IDs for in
 
 ### Evidence from supplied yc-data(1).xlsx (older snapshot)
 
-The saved M package was reopened and contained 12 shared queries. The later four industry QC queries are absent in this copy. Loaded worksheet snapshots show:
+The saved M package was reopened and contained 12 shared queries. The later four industry QC queries are absent in this historical copy; see the newer snapshot below. Loaded worksheet snapshots show:
 - Industry staging: 11,408 data rows, 6,408 distinct company IDs, 59 distinct industry IDs; depth 0 = 6,408 rows, depth 1 = 5,000 rows.
 - Dictionary: 59 distinct industry IDs, zero missing IDs, 9 roots and 50 children.
 - Bridge: 6,408 rows and 6,408 distinct company IDs, 59 distinct industry IDs, zero missing company/industry IDs.
 - No Excel error cells in the three loaded industry tables.
 - YC_Companies still returned a two-item list due to accidental navigation, and tag query did not yet contain Table.Distinct. The two existing tag/region anti-joins and duplicate-check definitions are present. Worksheet loads exist for four queries, not the intended connection-only setup.
 
-These figures describe a saved snapshot, not a live Power Query refresh. The user's later reports state that the two issues were corrected, regions checked, groups organized and four new QC queries created, but the current uploaded file predates those changes. Final persisted code, exact load settings, refreshed results, and the final company-tag and bridge duplicate results have not been independently verified. Do not infer a successful refresh or current source completeness from this snapshot.
+These figures describe a saved snapshot, not a live Power Query refresh. The user's later reports state that the two issues were corrected, regions checked, groups organized and four new QC queries created, but the current uploaded file predates those changes. At this historical checkpoint those items had not been independently verified; see the newer snapshot below. Do not infer a successful refresh or current source completeness from this snapshot.
+
+### Newer verified snapshot: yc-data(1)(1).xlsx
+
+All 16 query definitions are present. The four industry QC queries use the expected source and group/filter or anti-join logic. Each saved result contains zero nonempty data rows and zero Excel error cells:
+
+| Query | Saved exception rows | Result |
+| --- | ---: | --- |
+| Industry_PK_Duplicates | 0 | PASS |
+| Industry_Parent_Orphans | 0 | PASS |
+| Company_Industry_Duplicates | 0 | PASS |
+| Companies_Without_Industry | 0 | PASS |
+
+Saved data row counts: YC_Companies 6,408 (30 columns), YC_Industry_Staging 11,408, YC_Industry_Hierarchy 59, YC_Company_Industry 6,408. All four saved tables have zero Excel error cells. The restored companies query returns the complete source table and tag query now applies Table.Distinct. Region query remains undeduplicated by design if the region duplicate check passes. Existing five connection-only QC definitions were inspected, but their final output row counts are not stored as worksheets and have not been independently rerun. No live Power Query execution was performed. List order remains the agreed hierarchy assumption; no additional semantic QC query is planned for this iteration.
 
 ## 9. Next
 
-Proceed to Data Profiling as the next learning topic. Retain structural audit as a release checkpoint: save a new version, reopen and verify the expected 16-query inventory, corrected company output, tag/region QC results, final grouping and load settings. Confirm full refresh before treating the workbook as a verified baseline. Keep detection and remediation separate.
+Proceed to Data Profiling as the next learning topic. The 16-query inventory, corrected company output, tag deduplication code, and four saved industry QC results have now been verified. Remaining operational checks: confirm full refresh and connection-only QC results; move Companies_Without_Industry to Quality Control if desired; decide final load settings. These are not prerequisites to repeat the completed structural lessons. Keep detection and remediation separate.
