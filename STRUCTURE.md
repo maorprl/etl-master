@@ -131,7 +131,7 @@ The two originally proposed bridge orphan QC queries were deferred, not implemen
 
 Close & Load / Close & Load To commits editor changes to the workbook; Only Create Connection preserves the query without a worksheet table. Then explicitly save Excel (Ctrl+S). Applied Steps alone and Git documentation are not backups of an unsaved workbook. Reopen the saved file and verify query code/counts after significant changes. Load settings can be changed via Queries & Connections > Load To. Preserve a versioned copy before automated edits. Reference defines logical dependency but not guaranteed one-time retrieval or caching.
 
-A computer-use session rewrote the industry extraction beyond its requested scope; we restored the List.Positions/List.Zip sequence. Later the saved workbook contained an accidental Drill Down in YC_Companies (Source{0}[Column1.industries]), missing tag deduplication and unintended worksheet loads. The user subsequently reported deleting the Navigation step, applying tag deduplication, checking regions and reorganizing groups. These fixes are not present in the supplied older 12-query workbook. Do not claim the final workbook was verified. No workbook was edited by this documentation update.
+A computer-use session rewrote the industry extraction beyond its requested scope; we restored the List.Positions/List.Zip sequence. Later the saved workbook contained an accidental Drill Down in YC_Companies (Source{0}[Column1.industries]), missing tag deduplication and unintended worksheet loads. The user subsequently reported deleting the Navigation step, applying tag deduplication, checking regions and reorganizing groups. These fixes were absent from the older 12-query workbook but the company and tag fixes are present in the later verified 16-query workbook (see saved workbook verification below). No workbook was edited by this documentation update.
 
 For automated assistance restrict scope: do not modify existing queries, names, types, dependencies, load settings or M code unless specifically authorized. QC tasks detect and report; they do not remediate. Stop on an execution blocker rather than inventing workarounds. Report actual query names, sources, method, row count and PASS/FAIL/NOT TESTED. 
 
@@ -149,7 +149,15 @@ Refresh reruns applied steps on the current source data. Added/removed companies
 - [x] Verify candidate key completeness and uniqueness for the observed snapshot.
 - [x] Determine handling of tags: separate child table.
 - [x] Model regions and industries; document the industry hierarchy and bridge.
-- [ ] Verify saved final query inventory and remaining QC results.
+- [x] Verify saved 16-query inventory and four new industry QC results.
+- [ ] Confirm live refresh, remaining connection-only QC outputs and final analytical column selection.
 - [ ] Decide whether other nested lists need analytical tables.
 
-Parent ID was explicitly assigned Whole Number. Tag pair deduplication was reported completed; saved final verification remains open. No final load or full refresh verification has been established yet.
+Parent ID was explicitly assigned Whole Number. Tag pair deduplication is verified in saved M code; the saved connection-only QC result is not available. Worksheet loads are present; final analytical load settings and live refresh remain open.
+
+
+## Saved workbook verification — 2026-11-25
+
+The newer uploaded workbook `yc-data(1)(1).xlsx` was inspected directly (embedded Power Query M, query group metadata and saved worksheet cells). It supersedes `yc-data(1).xlsx` as the latest verified snapshot. All 16 planned queries are present. YC_Companies now returns Source = YC_All_Companies directly, without the accidental drill-down; YC_Company_Tag includes Table.Distinct on its two-column output. The original tag and region anti-joins remain intact. The four industry QC queries are present with the intended logic, and their saved worksheet results contain zero nonempty data rows. YC_Companies retains all 30 source columns; analytical column selection is still pending.
+
+Actual groups: Staging 2, Data Tables 6, Quality Control 8. Companies_Without_Industry is currently in Data Tables; the intended grouping remains 2/5/9. This is organizational only. Eight queries have worksheet loads: YC_Companies, YC_Industry_Staging, YC_Industry_Hierarchy, YC_Company_Industry and the four new QC queries; eight others have no worksheet load. The staging worksheet is named YC_Industry_Hierarchy, while the dictionary is on YC_Industry_Hierarchy (2). No embedded Data Model was found. The saved worksheet rows are evidence of a previous successful load, not of a fresh API refresh. No workbook changes were made during this audit.
