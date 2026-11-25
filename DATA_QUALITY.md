@@ -106,4 +106,17 @@ Saved data row counts: YC_Companies 6,408 (30 columns), YC_Industry_Staging 11,4
 
 ## 9. Next
 
-Proceed to Data Profiling as the next learning topic. The 16-query inventory, corrected company output, tag deduplication code, and four saved industry QC results have now been verified. Remaining operational checks: confirm full refresh and connection-only QC results; move Companies_Without_Industry to Quality Control if desired; decide final load settings. These are not prerequisites to repeat the completed structural lessons. Keep detection and remediation separate.
+Data Profiling is completed as a learning topic; the user reported completing the exercises. Data Structure and Data Types have also been covered. Next topic: Text Cleaning (Trim). The 16-query inventory, corrected company output, tag deduplication code, and four saved industry QC results have now been verified. Remaining operational checks: confirm full refresh and connection-only QC results; move Companies_Without_Industry to Quality Control if desired; decide final load settings. These are not prerequisites to repeat the completed structural lessons. Keep detection and remediation separate.
+
+
+## 10. Profiling and transformation validation — learning checkpoint (2026-11-25)
+
+Column Quality: counts/percentages of valid, error and empty values. Column Distribution: frequencies, Distinct (different values) and Unique (values appearing exactly once). Column Profile: selected-column statistics and value distribution; available statistics depend on type (e.g. min/max, average, standard deviation for numeric fields). Enable from View; switch from top 1,000 rows to entire data set for full-scope diagnosis. These are preview/diagnostic tools, not Applied Steps and not persistent QC queries. User reported completing all three exercises; no new numerical results were provided. Existing verified QC results remain historical as described above.
+
+### Missing values: decision principle
+
+Detect missingness technically; decide treatment based on structural, business and analytical requirements. A missing required primary key should be isolated and investigated before inclusion in a valid entity table; a missing optional website or team size need not cause deletion. A null parent_id is legitimate for a hierarchy root. A missing measure may justify exclusion from a specific analysis, with missingness disclosed, rather than deletion from the master dataset. Do not equate null, blank string, whitespace and error. Do not apply blanket null filtering. The complete Missing Values lesson remains ahead.
+
+### Type conversion checks
+
+Define target type by field semantics; automatic detection is a starting point, not a schema contract. Inspect identifiers/codes and leading zeros, date conventions, decimals, numeric precision, mixed types and join-key type compatibility. Check conversion errors with whole-data Column Quality; successful conversion does not prove preservation of meaning (silent errors include leading-zero loss, rounding and swapped day/month). Where necessary compare before/after values, ranges and row counts, test edge cases and check dependent queries. Correct an erroneous conversion at its original step or from Staging; changing the type of an already altered value may not restore lost information. Keep raw source values in Staging. See DATA_TRANSFORMATION.md for the taught conversion procedures.

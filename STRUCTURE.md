@@ -161,3 +161,26 @@ Parent ID was explicitly assigned Whole Number. Tag pair deduplication is verifi
 The newer uploaded workbook `yc-data(1)(1).xlsx` was inspected directly (embedded Power Query M, query group metadata and saved worksheet cells). It supersedes `yc-data(1).xlsx` as the latest verified snapshot. All 16 planned queries are present. YC_Companies now returns Source = YC_All_Companies directly, without the accidental drill-down; YC_Company_Tag includes Table.Distinct on its two-column output. The original tag and region anti-joins remain intact. The four industry QC queries are present with the intended logic, and their saved worksheet results contain zero nonempty data rows. YC_Companies retains all 30 source columns; analytical column selection is still pending.
 
 Actual groups: Staging 2, Data Tables 6, Quality Control 8. Companies_Without_Industry is currently in Data Tables; the intended grouping remains 2/5/9. This is organizational only. Eight queries have worksheet loads: YC_Companies, YC_Industry_Staging, YC_Industry_Hierarchy, YC_Company_Industry and the four new QC queries; eight others have no worksheet load. The staging worksheet is named YC_Industry_Hierarchy, while the dictionary is on YC_Industry_Hierarchy (2). No embedded Data Model was found. The saved worksheet rows are evidence of a previous successful load, not of a fresh API refresh. No workbook changes were made during this audit.
+
+
+## 3.8 — Analytical headers and schema (2026-11-25)
+
+Headers must represent field names, not data rows. Use First Row as Headers (Promote Headers), Use Headers as First Row (Demote Headers), and Rename are distinct operations. JSON record expansion already yields field names; do not promote a company row into headers. The `Column1.` prefix was added by Power Query record expansion, not by the source JSON. It is useful to avoid name collisions but unnecessary in the analytical company table.
+
+Agreed scope: preserve YC_All_Companies and its existing dependencies. Remove the prefix in YC_Companies only. With Source = YC_All_Companies, the taught M step was:
+
+```powerquery
+RenamedColumns = Table.TransformColumnNames(Source, each Text.Replace(_, "Column1.", ""))
+```
+
+This replaces every occurrence of the literal string; if arbitrary source field names can contain the string internally, prefer a prefix-only transform and check for resulting name collisions. The intended result is id, name, website, slug, launched_at, etc. rather than Column1.id, Column1.name, etc. The documented direct dependent query is Companies_Without_Industry: update its references to Column1.id to id (including column selection and the left Merge key), keep YC_Company_Industry.company_id unchanged and retain Left Anti semantics. The expected exception count for the prior snapshot is zero. User acknowledged the repair steps; a newly saved workbook and live result were not inspected. No change to Staging is intended.
+
+Grain was already taught and implemented during relational structuring; do not repeat that lesson.
+
+## 3.9 — Empty Rows & Columns
+
+These are one combined learning topic. Distinguish entirely blank records from records with missing individual fields, and entirely empty fields from fields with some missing values. Home > Remove Rows > Remove Blank Rows removes wholly blank rows (not every row with a null). For columns, inspect Column Quality over the entire data set; use Remove Columns only when justified. Confirm the definition of blank if whitespace or empty strings are present. A 100% empty column at one snapshot is not necessarily redundant: future refreshes may populate it, or it may be required by the schema. A structured JSON source with verified company IDs does not justify blanket removal of records. No new empty-row or empty-column removal step was required or verified in the YC workbook. Missing-value treatment is a separate topic; see DATA_QUALITY.md.
+
+## Development versus refresh
+
+While editing in Power Query, validate the changed step and relevant dependent queries; full Refresh All after every minor transformation is unnecessary. Refresh Preview updates the editor preview. Close & Load applies editor changes and loads according to query load settings; save the Excel workbook separately (Ctrl+S). Refresh executes a specific query and required dependencies; Refresh All runs participating connections/queries and is appropriate for source updates and end-to-end checkpoints. Connection-only queries may participate depending on settings. A preview or saved result is not evidence of a new full refresh. Final analytical column selection, load settings and full refresh remain pending.
