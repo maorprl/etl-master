@@ -61,6 +61,36 @@ After joining: verify row counts, unintended fan-out, unmatched records and cont
 
 User acknowledged the final checklist; no workbook or complete final QC output was inspected. The parent key was verified at the observed snapshot, and the expected parent-to-tag relation is 1:N (a company may have zero or more tags). Source duplicate root cause, full before/after counts and refresh validation remain open.
 
-## 8. Next
+## 8. Industry model validation (2026-11-25)
 
-Confirm final QC outputs and both key types; organize staging, data and QC queries. Later extend the procedure to other nested lists only as needed.
+### Permanent QC queries agreed for this iteration
+
+Create references in Quality Control; do not modify the data tables when diagnosing problems.
+
+| QC query | Source | Method | Expected result | Latest user-reported status |
+| --- | --- | --- | --- | --- |
+| Industry_PK_Duplicates | YC_Industry_Hierarchy | Keep industry_id, Group By industry_id, Count Rows, Count > 1 | 0 rows | Empty / PASS |
+| Industry_Parent_Orphans | YC_Industry_Hierarchy | Filter parent_id != null; Left Anti Merge parent_id against YC_Industry_Hierarchy.industry_id | 0 rows | Empty / PASS |
+| Company_Industry_Duplicates | YC_Company_Industry | Group By company_id + industry_id, Count Rows, Count > 1 | 0 rows | Created per user; empty output not explicitly confirmed |
+| Companies_Without_Industry | YC_Companies | Keep Column1.id; Left Anti Merge vs YC_Company_Industry.company_id | 0 rows for this snapshot | Empty / PASS |
+
+The dictionary PK must be checked against the dictionary, not against staging where repeated node IDs are expected. Distinct/Unique statistics after grouping do not demonstrate uniqueness of the original table. Root parent_id nulls are legitimate; exclude them before the parent anti-join. Coverage checks show absence of missing company assignments, not absence of incorrect or extra assignments. A company without classification at source may legitimately be missing from the bridge; investigate before treating this as a failure.
+
+The originally proposed Company_Industry_Company_Orphans and Company_Industry_Industry_Orphans were deferred by agreement because both data tables derive from the same staging data, with no intentional independent filtering. These are defensive checks worth reconsidering if filters, independent sources or key transformations are introduced; sharing a source alone is not a proof of referential integrity. The planned inventory is 16, not 18 queries.
+
+Additional checks: whole-data Column Quality; no null/error IDs, text IDs for industry keys and Whole Number for company keys; depth in {0,1}; roots have null parent, children have non-null valid parent; direct assignments have valid IDs. The user accepted the list ordering convention and chose not to add a cross-column hierarchy consistency check. This is an explicit assumption, not a confirmed semantic match to industry/subindustry. A future source with longer, empty or invalid lists may break the current transform or produce invalid assignments.
+
+### Evidence from supplied yc-data(1).xlsx (older snapshot)
+
+The saved M package was reopened and contained 12 shared queries. The later four industry QC queries are absent in this copy. Loaded worksheet snapshots show:
+- Industry staging: 11,408 data rows, 6,408 distinct company IDs, 59 distinct industry IDs; depth 0 = 6,408 rows, depth 1 = 5,000 rows.
+- Dictionary: 59 distinct industry IDs, zero missing IDs, 9 roots and 50 children.
+- Bridge: 6,408 rows and 6,408 distinct company IDs, 59 distinct industry IDs, zero missing company/industry IDs.
+- No Excel error cells in the three loaded industry tables.
+- YC_Companies still returned a two-item list due to accidental navigation, and tag query did not yet contain Table.Distinct. The two existing tag/region anti-joins and duplicate-check definitions are present. Worksheet loads exist for four queries, not the intended connection-only setup.
+
+These figures describe a saved snapshot, not a live Power Query refresh. The user's later reports state that the two issues were corrected, regions checked, groups organized and four new QC queries created, but the current uploaded file predates those changes. Final persisted code, exact load settings, refreshed results, and the final company-tag and bridge duplicate results have not been independently verified. Do not infer a successful refresh or current source completeness from this snapshot.
+
+## 9. Next
+
+Proceed to Data Profiling as the next learning topic. Retain structural audit as a release checkpoint: save a new version, reopen and verify the expected 16-query inventory, corrected company output, tag/region QC results, final grouping and load settings. Confirm full refresh before treating the workbook as a verified baseline. Keep detection and remediation separate.
