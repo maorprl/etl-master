@@ -40,7 +40,8 @@ Source documentation: https://github.com/yc-oss/api
 - [x] Build two-level industry dictionary and direct-assignment bridge.
 - [x] Define industry QC and coverage checks; user reports creation of four additional QC queries.
 - [x] Finish the structural modeling learning stage (subject to final saved-workbook verification).
-- [ ] Verify the final 16-query saved workbook, QC results, key types, grouping and load settings.
+- [x] Verify saved 16-query inventory, company and tag corrections, and four new QC outputs.
+- [ ] Confirm remaining connection-only QC outputs, final analytical column selection and load settings.
 - [ ] Verify full refresh.
 - [ ] Data Profiling.
 - [ ] Data Cleaning & Transformation.
@@ -56,4 +57,4 @@ Source documentation: https://github.com/yc-oss/api
 
 Current learning stage: Data Structuring completed by agreement; next topic is Data Profiling. The agreed model uses a two-level hierarchy based on list order, and a bridge that permits M:N but currently extracts one direct classification per classified company.
 
-Evidence boundary: the last inspected uploaded workbook (yc-data(1).xlsx) contains 12 queries. The user reports subsequent corrections, group organization and four more QC queries (target 16 = 2 Staging + 5 Data Tables + 9 Quality Control). The corrected saved file has not yet been supplied. No live refresh or final Data Model relationships have been verified. See STRUCTURE.md and DATA_QUALITY.md for details.
+Verified baseline: `yc-data(1)(1).xlsx`, inspected 2026-11-25. All 16 queries saved; four new industry QC outputs contain zero exception rows. Actual groups: 2 Staging, 6 Data Tables, 8 Quality Control (Companies_Without_Industry is in Data Tables; intended 2/5/9). Saved tables: 6,408 companies, 11,408 industry staging rows, 59 dictionary nodes, 6,408 direct assignments. Eight queries have worksheet loads; no embedded Data Model. Live refresh and connection-only QC results were not independently executed. The older 12-query workbook is historical, not the latest baseline.
