@@ -28,7 +28,7 @@ Central catalog of data sources used by ETL Master.
 | Coverage | Publicly launched YC companies with pages on the YC website |
 | Limitations | Unofficial source; excludes companies outside documented coverage; completeness and accuracy not independently verified |
 | Date registered | 2026-11-25 |
-| Status | Registered; extraction pending |
+| Status | Registered; initial extraction successful |
 
 ### Provider-reported metadata (2026-11-25)
 
@@ -41,4 +41,4 @@ These figures are a dated reference from the provider documentation, not counts 
 
 ### Next action
 
-Connect to the endpoint with Excel Power Query and inspect the returned JSON structure. No data has been imported or validated yet.
+Initial extraction and structure inspection completed; see [EXTRACT.md](EXTRACT.md), [STRUCTURE.md](STRUCTURE.md) and [DATA_QUALITY.md](DATA_QUALITY.md). Company profiling showed 6,408 IDs in the observed snapshot; source completeness beyond the returned data and repeat refresh remain unverified.
