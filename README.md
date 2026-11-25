@@ -29,7 +29,20 @@ Source documentation: https://github.com/yc-oss/api
 
 - [x] Create the GitHub repository.
 - [x] Document the project purpose and initial data source.
-- [ ] Connect to the JSON source using Power Query in Excel.
-- [ ] Inspect the source structure before applying transformations.
+- [x] Connect to the JSON source using Power Query in Excel.
+- [x] Inspect the source structure and expand records into columns.
+- [x] Create a separate company-tag query using Reference and list expansion.
+- [x] Verify the company ID key in the observed 6,408-row snapshot.
+- [x] Detect duplicate company/tag pairs and inspect referential integrity.
+- [ ] Confirm final QC query outputs and compatible key types.
+- [ ] Organize staging, data and quality-control queries.
+- [ ] Verify full refresh and load final tables into Excel / Data Model.
 
-No data has been imported or validated yet.
+## Documentation
+
+- [Data sources](DATA_SOURCES.md) — source catalog.
+- [Extract](EXTRACT.md) — connection and JSON extraction.
+- [Data structuring](STRUCTURE.md) — record and list transformations.
+- [Data quality](DATA_QUALITY.md) — validation procedures and observed results.
+
+Current state: Power Query preview and structural checks are underway. Final workbook loading and repeat refresh validation have not been verified.
