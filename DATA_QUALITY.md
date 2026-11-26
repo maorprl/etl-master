@@ -106,7 +106,7 @@ Saved data row counts: YC_Companies 6,408 (30 columns), YC_Industry_Staging 11,4
 
 ## 9. Next
 
-Data Profiling is completed as a learning topic; the user reported completing the exercises. Data Structure and Data Types have also been covered. Next topic: Text Cleaning (Trim). The 16-query inventory, corrected company output, tag deduplication code, and four saved industry QC results have now been verified. Remaining operational checks: confirm full refresh and connection-only QC results; move Companies_Without_Industry to Quality Control if desired; decide final load settings. These are not prerequisites to repeat the completed structural lessons. Keep detection and remediation separate.
+Data Profiling is completed as a learning topic; the user reported completing the exercises. Data Structure and Data Types have also been covered. Text Cleaning is now completed as a learning topic; see section 11. Next topic: Text Standardization. The 16-query inventory, corrected company output, tag deduplication code, and four saved industry QC results have now been verified. Remaining operational checks: confirm full refresh and connection-only QC results; move Companies_Without_Industry to Quality Control if desired; decide final load settings. These are not prerequisites to repeat the completed structural lessons. Keep detection and remediation separate.
 
 
 ## 10. Profiling and transformation validation — learning checkpoint (2026-11-25)
@@ -120,3 +120,60 @@ Detect missingness technically; decide treatment based on structural, business a
 ### Type conversion checks
 
 Define target type by field semantics; automatic detection is a starting point, not a schema contract. Inspect identifiers/codes and leading zeros, date conventions, decimals, numeric precision, mixed types and join-key type compatibility. Check conversion errors with whole-data Column Quality; successful conversion does not prove preservation of meaning (silent errors include leading-zero loss, rounding and swapped day/month). Where necessary compare before/after values, ranges and row counts, test edge cases and check dependent queries. Correct an erroneous conversion at its original step or from Staging; changing the type of an already altered value may not restore lost information. Keep raw source values in Staging. See DATA_TRANSFORMATION.md for the taught conversion procedures.
+
+
+## 11. Text Cleaning — diagnostic and validation protocol (2026-11-26)
+
+Learning completed; actual YC text-quality counts and application have not been verified. Detection -> Assessment -> Cleaning -> Validation. Keep diagnostics separate from remediation, preserve staging, and evaluate the field's business meaning before changing its content. Trim is routine for approved fields; other cleaning is conditional. A technically detectable character is not necessarily a defect.
+
+### 11.1 Pre-cleaning checks
+
+Examples are M custom-column expressions for a nullable text column called name. Null is not a text-cleaning issue; handle it in the Missing Values topic. Source errors should remain visible or be counted separately, not silently treated as clean. Use full-data scope rather than relying on the top-1,000-row preview.
+
+| Check | Example M expression |
+| --- | --- |
+| Edge whitespace | `[name] <> Text.Trim([name])` |
+| Repeated ordinary spaces | `if [name] = null then false else Text.Contains([name], "  ")` |
+| Control characters removed by Clean | `[name] <> Text.Clean([name])` |
+| Special whitespace / invisible Unicode | List.ContainsAny with Unicode code lists (see below) |
+| Field-specific prohibited characters | `if [name] = null then false else List.ContainsAny(Text.ToList([name]), {"*", "~"})` |
+| Invalid characters in a digits-only text field | `[code] <> Text.Select([code], {"0".."9"})` |
+| Unwanted substring | `if [name] = null then false else Text.Contains([name], "(Imported)")` |
+| Unwanted prefix/suffix | Text.StartsWith / Text.EndsWith with a null guard |
+
+Unicode example (special whitespace):
+
+```powerquery
+if [name] = null then false
+else List.ContainsAny(
+    List.Transform(Text.ToList([name]), Character.ToNumber),
+    {160, 5760, 8192..8202, 8239, 8287, 12288}
+)
+```
+
+For invisible formatting characters use an appropriate list, e.g. {173, 8203..8207, 8288, 65279}. These are non-exhaustive diagnostic sets and not a removal policy. Detection results may overlap (e.g. a special space at the edge or multiple ordinary spaces at the edge). Flag counts are not additive counts of unique faulty rows. The repeated-space test checks any position; restrict to trimmed input if edge runs should be excluded. Column Quality/Distribution/Profile do not directly flag these specific text anomalies.
+
+### 11.2 Proposed reusable Text_Quality_Check
+
+A future diagnostic Reference in Quality Control can scan declared text columns of a chosen query (initially YC_Companies) and return one row per column, with counts for edge whitespace, repeated spaces, special whitespace, control characters and selected invisible characters. Use Table.ColumnsOfType for eligible typed columns, apply appropriate field-specific rules, report null/error counts separately and retain access to exception rows for diagnosis. Evaluate performance for large data sets; avoid silently changing data. Pre-cleaning and post-cleaning checks must reference the corresponding input/output stage; a downstream Reference alone cannot describe original anomalies.
+
+This is a design proposal only: no query was created, no M implementation tested in Excel and no issue counts measured. Existing 16-query inventory remains the latest verified baseline. Illustrative counts from lessons are not actual YC results.
+
+### 11.3 Post-cleaning validation
+
+| Check | Purpose |
+| --- | --- |
+| Row count | Text-only transformation should preserve row count and grain |
+| Null and empty-string counts | Detect new missing or blank values; distinguish null from "" and whitespace |
+| Error count | Detect introduced errors; investigate existing errors |
+| Residual issues | Rerun the applicable diagnostic on the cleaned output |
+| Changed values | Compare original and result for affected rows, using a stable identifier and matching input snapshot |
+| Distinct count | Identify changes in cardinality; reduction can be intended for labels |
+| Key uniqueness / collisions | Identify different original values mapping to the same cleaned key |
+| Referential integrity | Recheck dependent joins if key values were changed |
+
+For collision diagnosis, group original/cleaned pairs by cleaned value, count distinct original values, and inspect groups with more than one distinct original value. A-123, A#123 and A123 can collide after symbol removal. For categories this may be intended; for identifiers it can corrupt relationships. Distinct count alone does not establish that transformations are correct. Check affected examples and business rules. For composite keys validate the entire key combination. Do not automatically deduplicate to hide collisions.
+
+Select tests proportionately: Trim -> residual edge whitespace, blanks, key uniqueness if applicable; Clean -> inspect lost word separators; Unicode/character removal and replacements -> changed values, empties, collisions and relevant joins. Always preserve original values in staging and document the rule. No text-cleaning PASS or FAIL is claimed without actual execution.
+
+Next learning topic: Text Standardization.
