@@ -46,7 +46,8 @@ Source documentation: https://github.com/yc-oss/api
 - [x] Data Profiling (learning and user-reported practice).
 - [x] Data Structure: headers, grain, empty rows & columns.
 - [x] Data Types: Change Type, Using Locale, Type Conversion (learning completed; full schema audit pending).
-- [ ] Data Cleaning & Transformation — next: Text Cleaning (Trim).
+- [x] Text Cleaning (learning completed; actual application and QC results pending verification).
+- [ ] Data Cleaning & Transformation — next: Text Standardization.
 - [ ] Load final analytical tables into Excel / Data Model.
 - [ ] Data Analysis.
 
@@ -58,8 +59,10 @@ Source documentation: https://github.com/yc-oss/api
 - [Data quality](DATA_QUALITY.md) — validation procedures and observed results.
 - [Data transformation](DATA_TRANSFORMATION.md) — data types, conversion logic and cleaning lessons.
 
-Current learning stage: Data Profiling, Data Structure and Data Types completed as learning topics. Next topic: Text Cleaning, starting with Trim. The agreed model uses a two-level hierarchy based on list order, and a bridge that permits M:N but currently extracts one direct classification per classified company.
+Current learning stage: Data Profiling, Data Structure, Data Types and Text Cleaning completed as learning topics. Next topic: Text Standardization. The agreed model uses a two-level hierarchy based on list order, and a bridge that permits M:N but currently extracts one direct classification per classified company.
 
 Verified baseline: `yc-data(1)(1).xlsx`, inspected 2026-11-25. All 16 queries saved; four new industry QC outputs contain zero exception rows. Actual groups: 2 Staging, 6 Data Tables, 8 Quality Control (Companies_Without_Industry is in Data Tables; intended 2/5/9). Saved tables: 6,408 companies, 11,408 industry staging rows, 59 dictionary nodes, 6,408 direct assignments. Eight queries have worksheet loads; no embedded Data Model. Live refresh and connection-only QC results were not independently executed. The older 12-query workbook is historical, not the latest baseline.
 
 Latest learning checkpoint (2026-11-25, after the verified baseline): user worked on removing Column1. prefixes in YC_Companies, updating its dependent Companies_Without_Industry check, and converting launched_at to a date. These later edits are user-reported/discussed, not independently verified in a newly saved workbook. No full refresh, final 30-column type audit or final load configuration has been verified.
+
+Latest learning checkpoint (2026-11-26): completed Text Cleaning, including dynamic Trim on approved typed text columns, repeated spaces, special/invisible Unicode, control characters, character selection/removal, targeted text replacement, pre-cleaning diagnostics and post-cleaning validation. A reusable Text_Quality_Check query was proposed, not implemented or verified. No new workbook was inspected and no text-cleaning transformations, issue counts or live refresh results are claimed. See DATA_TRANSFORMATION.md section 2 and DATA_QUALITY.md section 11. Next lesson: Text Standardization.
